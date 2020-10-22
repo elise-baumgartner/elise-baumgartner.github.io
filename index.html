@@ -15,45 +15,51 @@
         <div class="reveal">
             <div class="slides">
                 <section data-background-color="silver">
-                    <h2 style="color:maroon;">Welcomb to the CS Department</h2>
+                    <h2 style="color:maroon;">Welcome to the CS Department</h2>
                 </section>
                 <section data-background-color="silver">
-                    <h2 style="color:maroon;">The CS Department Welcome You</h2>
+                    <h2 style="color:maroon;">The CS Department Welcomes You</h2>
                 </section>
                 
             </div>
         </div>
 		
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/js/reveal.js" integrity="sha512-4TbxHVUZM3pE/X0OGqnsz0N8bf1+g5p8x1SHHw3g0wh9dzjPZ+jyQn5qXJ62r0vXTKJ4at4ljO2d/7X2REIdAQ==" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/lib/js/head.min.js" integrity="sha512-8Nk/zoTKjNixnM15wXjpF26KR4Ln87cc5Yllc5xP54wwbcKnljAAn2JP+tYAS8+4e7s/XK8XTiDH0Ltw2fmoBQ==" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.js" integrity="sha512-AcZyhRP/tbAEsXCCGlziPun5iFvcSUpEz2jKkx0blkYKbxU81F+iq8FURwPn1sYFeksJ+sDDrI5XujsqSobWdQ==" crossorigin="anonymous"></script>
 		<script>
 
 			// Also available as an ES module, see:
 			// https://revealjs.com/initialization/
-
-		Reveal.initialize({
-				controls: false,
-				progress: false,
-				center: true,
-                hash: true,
-                autoSlide: 5000,
-                autoSlideStoppable: false,
-                loop: true,
+			Reveal.initialize({
   multiplex: {
     // Example values. To generate your own, see the socket.io server instructions.
-    secret: null, // Obtained from the socket.io server. Gives this (the master) control of the presentation
-    id: '05fe53206ee40f67', // Obtained from socket.io server
+    secret: null, // null so the clients do not have control of the master presentation
+    id: '05fe53206ee40f67', // id, obtained from socket.io server
     url: 'http://localhost:1948' // Location of socket.io server
   },
 
   // Don't forget to add the dependencies
   dependencies: [
     { src: 'https://reveal-multiplex.glitch.me/socket.io/socket.io.js', async: true },
-    { src: 'https://reveal-multiplex.glitch.me/master.js', async: true },
-
-    // and if you want speaker notes
-    { src: 'https://unpkg.com/reveal-notes-server/client.js', async: true }
+    { src: 'https://reveal-multiplex.glitch.me/client.js', async: true }
   ]
 });
-            
         </script>
+		
+		<script>
+			(function() {
+	var multiplex = Reveal.getConfig().multiplex;
+	var socketId = multiplex.id;
+	var socket = io.connect(multiplex.url);
+
+	socket.on(multiplex.id, function(data) {
+		// ignore data from sockets that aren't ours
+		if (data.socketId !== socketId) { return; }
+		if( window.location.host === 'localhost:1947' ) return;
+
+		Reveal.setState(data.state);
+	});
+}());   
+		</script>
     </body>
